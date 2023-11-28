@@ -4,30 +4,31 @@ import jsonwebtoken from "jsonwebtoken";
 
 const UserSchema = new mongoose.Schema(
   {
-     user_type:{
+     userType:{
        type:String,
        required:true
      },
-    username:{
-      type:String,
-      required:true,
-      unique:true, 
-      index:true 
-    },
+    // username:{
+    //   type:String,
+    //   required:true,
+    //   unique:true, 
+    //   index:true 
+    // },
     email:{
+      index:true,
       type:String,
       required:true,
       unique:true
     },
-    fullname:{
+    fullName:{
       type:String,
       required:true
     },
-    admin_name:{
+    adminName:{
       type:String,
       required:true
     },
-    phone_number:{
+    phoneNumber:{
       type:String,
       required:true
     },
@@ -47,7 +48,7 @@ const UserSchema = new mongoose.Schema(
       required:true
     },
     avatar:{
-        type:string,//cloudinary
+        type:String,//cloudinary
     },
     refreshToken:{
          type:String
