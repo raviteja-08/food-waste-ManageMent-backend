@@ -1,8 +1,8 @@
 const asyncHandler = (requestHandler)=>{
     return  (req,res,next)=>{
         Promise.resolve(requestHandler(req,res,next)).catch((err)=>{
-            //res.status(err.statusCode).json(err.message)
-            next(err);
+            res.status(err.statusCode || 400).json({err})
+            // next(err);
         });
     }
 }
