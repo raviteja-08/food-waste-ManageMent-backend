@@ -17,9 +17,12 @@ app.use(cookieParser());
 //routes
 
 import userRouter from "./routes/user.routes.js"
-
+import donationRouter from "./routes/foodDonation.routes.js"
+import messageRouter from "./routes/message.routes.js"
 // routes declaration
 app.use("/api/users",userRouter);
+app.use("/api/donation",donationRouter);
+app.use("/api/messages",messageRouter);
 
 
 export  {app};

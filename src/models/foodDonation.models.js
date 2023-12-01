@@ -1,25 +1,21 @@
 import mongoose from "mongoose";
 
 const foodDonationSchema = new mongoose.Schema({
-  food_name:{
+  foodName:{
     type:String,
     required:true
   },
-  food_type:{
+  foodType:{
     type:String,
     required:true
   },
   quantity:{
-    type:Number,
+    type:String,
     required:true 
   },
-  duration:{
+  expiresIn:{
     type:Number,
     required:true
-  },
-  postedTime:{
-    type:Number,
-    default:Date.now()
   },
   address:{
     type:{
@@ -30,13 +26,14 @@ const foodDonationSchema = new mongoose.Schema({
     },
     required:true
   },
-  phone_number:{
+  phoneNumber:{
     type:String,
     required:true
   },
   donar:{
     type:mongoose.Schema.Types.ObjectId,
-    ref : "User"
+    ref : 'User',
+    required:true
   },
   isAccepted:{
     type:Boolean,
@@ -44,11 +41,12 @@ const foodDonationSchema = new mongoose.Schema({
   },
   acceptedBy:{
     type:mongoose.Schema.Types.ObjectId,
-    ref : "User"
+    ref : "User",
+    default:null
   }
   
 },
 {timestamps:true} )
 
 
-export default foodDonationSchema = mongoose.model("food_donation",foodDonationSchema); 
+export const FoodDonation = mongoose.model("FoodDonation",foodDonationSchema); 

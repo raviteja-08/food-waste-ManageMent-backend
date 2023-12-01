@@ -2,13 +2,13 @@ import { User } from "../models/user.models.js";
 import {asyncHandler} from "../utils/asyncHandler.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {ApiError} from "../utils/ApiError.js"
-import  JsonWebToken  from "jsonwebtoken"
+import  jsonWebToken  from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
 // remove these functions
 const generateToken = (user)=>{
 
-    return JsonWebToken.sign({
+    return jsonWebToken.sign({
         _id:user._id
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -77,19 +77,20 @@ const loginUser = asyncHandler(async(req,res)=>{
     
     let userData = await User.findOne({email:email});
     if(!userData){
-        throw new ApiError(400,"invalid username or incorrect password");
+      res.status(400).json({success:false,message:"invalid username or incorrect password"})
     }
 
     userData = JSON.parse(JSON.stringify(userData));
     console.log(userData.password,email)
 
 
-    let check = checkPassword(password,userData.password)
+    let check = await checkPassword(password,userData.password)
     const token = generateToken(userData);
+    console.log( check)
     if(check)
       res.status(200).json({token:token,success:true});
     else
-      return new ApiError(500)
+      res.status(400).json({success:false,message:"invalid username or incorrect password"})
 
 })
 const userDetails = asyncHandler(async(req,res)=>{
@@ -99,7 +100,14 @@ const userDetails = asyncHandler(async(req,res)=>{
        console.log(decoded.foo)
     */
    // rap this in try catch block
-    let decodedData =  JsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+   let decodedData
+   try{
+
+      decodedData =  jsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+   }
+   catch(err){
+       res.status(404).json({success:false,msg:err})
+   }
     
     const userData = await User.findById(decodedData._id).select("-_id -password");
 
