@@ -26,8 +26,10 @@ const registerUser = asyncHandler(async(req,res)=>{
      
 
     // get details
-    const {fullName,email,userType,adminName,phoneNumber,password,address}=req.body;
-    
+    let {fullName,email,userType,adminName,phoneNumber,password,address}=req.body;
+    fullName = fullName.toUpperCase()
+    userType = userType.toUpperCase()
+    address.city = address.city.toUpperCase()
     if(
         [fullName,email,userType,adminName,phoneNumber,password].some((field)=>{
           return field?.trim() === ""
@@ -38,7 +40,7 @@ const registerUser = asyncHandler(async(req,res)=>{
     
     const existedUser = await User.findOne({email});
     if(existedUser){
-        throw new ApiError(409,"user with email already exist");
+       res.status(400).json(new ApiResponse(409,"user with email already exist"))
     }
     // req.files.......
     const user = await User.create({
@@ -88,7 +90,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     const token = generateToken(userData);
     console.log( check)
     if(check)
-      res.status(200).json({token:token,success:true});
+      res.status(200).json({token:token,success:true,type:userData.userType});
     else
       res.status(400).json({success:false,message:"invalid username or incorrect password"})
 
@@ -116,5 +118,20 @@ const userDetails = asyncHandler(async(req,res)=>{
     );
 })
 
+const getUserDetails=asyncHandler(async(req,res)=>{
+    const {token} = req.body;
+    const id = req.params.id
+    let decodedData
+    try{
 
-export {registerUser,loginUser,userDetails};
+        decodedData =  jsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+    }
+    catch(err){
+        res.status(404).json({success:false,msg:err})
+    }
+    const user = await User.findById(id);
+    res.status(200).json(
+      new ApiResponse(200,user,"user details")
+    )
+})
+export {registerUser,loginUser,userDetails,getUserDetails};

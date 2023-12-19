@@ -7,16 +7,17 @@ import jsonwebtoken  from "jsonwebtoken"
 
 const createDonation = asyncHandler(async(req,res)=>{
 
-    const {token,foodName,foodType,quantity,expiresIn,address,phoneNumber} = req.body;
+    let {token,foodName,foodType,quantity,expiresIn,address,phoneNumber} = req.body;
+    address.city = address.city.toUpperCase()
     let decodedData
     try{
  
-       decodedData =  jsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+       decodedData =  jsonwebtoken.verify(token,process.env.ACCESS_TOKEN_SECRET)
     }
     catch(err){
         res.status(404).json({success:false,msg:err})
     }
-    // NGO check implement later
+    
     
     const donation = await FoodDonation.create({
           foodName,
@@ -56,7 +57,7 @@ const getAllDonations = asyncHandler(async(req,res)=>{
      let decodedData
      try{
   
-        decodedData =  jsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+        decodedData =  jsonwebtoken.verify(token,process.env.ACCESS_TOKEN_SECRET)
      }
      catch(err){
          res.status(404).json({success:false,msg:err})
@@ -68,12 +69,31 @@ const getAllDonations = asyncHandler(async(req,res)=>{
      )
 
 })
-const getDonationDetails = asyncHandler(async(req,res)=>{
+const getAllDonationsNgo = asyncHandler(async(req,res)=>{
 
+     const {token} = req.body
+     console.log(token);
+     let decodedData
+     try{
+  
+        decodedData =  jsonwebtoken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+     }
+     catch(err){
+         res.status(404).json({success:false,msg:err})
+     }
+     const response = await Message.find({reciepentId:decodedData._id});
+
+     res.status(200).json(
+        new ApiResponse(200,response,"your donations")
+     )
+
+})
+const getDonationDetails = asyncHandler(async(req,res)=>{
+    let {token} = req.body
     let decodedData
     try{
  
-       decodedData =  jsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+       decodedData =  jsonwebtoken.verify(token,process.env.ACCESS_TOKEN_SECRET)
     }
     catch(err){
         res.status(404).json({success:false,msg:err})
@@ -90,13 +110,13 @@ const acceptDonation = asyncHandler(async(req,res)=>{
       let decodedData
     try{
 
-        decodedData =  jsonWebToken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+        decodedData =  jsonwebtoken.verify(token,process.env.ACCESS_TOKEN_SECRET)
     }
     catch(err){
         res.status(404).json({success:false,msg:err})
     }
 
-      const donationId = req.params.id;
+    const donationId = req.params.id;
 
       let donation = await FoodDonation.findById(donationId);
       console.log(donation)
@@ -129,8 +149,20 @@ const acceptDonation = asyncHandler(async(req,res)=>{
 
 })
 
-const rejectDonation = asyncHandler(async(req,res)=>{
-      
+const restDonations = asyncHandler(async(req,res)=>{
+    const {token} = req.body
+    let decodedData
+    try{
+
+        decodedData =  jsonwebtoken.verify(token,process.env.ACCESS_TOKEN_SECRET)
+    }
+    catch(err){
+        res.status(404).json({success:false,msg:err})
+    }
+    let resp = await  FoodDonation.find({donar:decodedData._id});
+    res.status(200).json(
+        new ApiResponse(200,resp,"your donations")
+    )
 })
 
-export {getAllDonations,createDonation,getDonationDetails,acceptDonation,rejectDonation};
+export {getAllDonations,createDonation,getDonationDetails,acceptDonation,restDonations,getAllDonationsNgo};
